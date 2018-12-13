@@ -19,14 +19,6 @@ let blogSchema = new mongoose.Schema({
 });
 let Blog = mongoose.model("Blog", blogSchema)
 
-// Blog.create({
-//   title: "Test Blog",
-//   image: "https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60",
-//   body: "Hello this is a Blog post"
-// });
-
-// Routes -
-
 app.get("/", function(req, res){
     res.redirect("/blogs");
 });
@@ -36,9 +28,69 @@ app.get("/blogs", function(req, res){
         if(err){
             console.log(err);
         } else {
-            res.render("index", {blogs: []});
+            res.render("index", {blogs: blogs});
         }
     })
+});
+
+app.get("/blogs/new", function(req, res){
+   res.render("new");
+});
+
+app.post("/blogs", function(req, res){
+
+
+   Blog.create(req.body.blog, function(err, newBlog){
+       console.log(newBlog);
+      if(err){
+          res.render("new");
+      } else {
+          res.redirect("/blogs");
+      }
+   });
+});
+
+app.get("/blogs/:id", function(req, res){
+   Blog.findById(req.params.id, function(err, blog){
+      if(err){
+          res.redirect("/");
+      } else {
+          res.render("show", {blog: blog});
+      }
+   });
+});
+
+app.get("/blogs/:id/edit", function(req, res){
+   Blog.findById(req.params.id, function(err, blog){
+       if(err){
+           console.log(err);
+           res.redirect("/")
+       } else {
+           res.render("edit", {blog: blog});
+       }
+   });
+});
+
+app.put("/blogs/:id", function(req, res){
+   Blog.findByIdAndUpdate(req.params.id, req.body.blog, function(err, blog){
+       if(err){
+           console.log(err);
+       } else {
+         var showUrl = "/blogs/" + blog._id;
+         res.redirect(showUrl);
+       }
+   });
+});
+
+app.delete("/blogs/:id", function(req, res){
+   Blog.findById(req.params.id, function(err, blog){
+       if(err){
+           console.log(err);
+       } else {
+           blog.remove();
+           res.redirect("/blogs");
+       }
+   });
 });
 
 app.listen(3000, function(){
