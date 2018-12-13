@@ -1,24 +1,25 @@
-let express    = require("express"),
-methodOverride = require("method-override"),
-app            = express(),
-bodyParser     = require("body-parser"),
-mongoose       = require("mongoose");
+let express = require("express"),
+    app     = express(),
+    mongoose = require("mongoose"),
+    bodyParser = require("body-parser"),
+    expressSanitizer = require("express-sanitizer"),
+    methodOverride = require('method-override');
 
-
-// App Config-
-mongoose.connect("mongodb://localhost/restful_blog_app", { useNewUrlParser: true });
+mongoose.connect("mongodb://localhost/blog_app");
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(expressSanitizer());
 app.set("view engine", "ejs");
 app.use(express.static("public"));
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(methodOverride("_method"));
-// Mongoose/Model Config-
+app.use(methodOverride('_method'));
+
 let blogSchema = new mongoose.Schema({
-  title: String,
-  image: String,
-  body: String,
-  created: {type: Date, default: Date.now}
+    title: String,
+    body: String,
+    image: String,
+    created:  {type: Date, default: Date.now}
 });
-let Blog = mongoose.model("Blog", blogSchema)
+
+let Blog = mongoose.model("Blog", blogSchema);
 
 app.get("/", function(req, res){
     res.redirect("/blogs");
@@ -39,9 +40,9 @@ app.get("/blogs/new", function(req, res){
 });
 
 app.post("/blogs", function(req, res){
-
-
-   Blog.create(req.body.blog, function(err, newBlog){
+    req.body.blog.body = req.sanitize(req.body.blog.body);
+   let formData = req.body.blog;
+   Blog.create(formData, function(err, newBlog){
        console.log(newBlog);
       if(err){
           res.render("new");
@@ -65,7 +66,7 @@ app.get("/blogs/:id/edit", function(req, res){
    Blog.findById(req.params.id, function(err, blog){
        if(err){
            console.log(err);
-           res.redirect("/blogs")
+           res.redirect("/")
        } else {
            res.render("edit", {blog: blog});
        }
@@ -75,20 +76,21 @@ app.get("/blogs/:id/edit", function(req, res){
 app.put("/blogs/:id", function(req, res){
    Blog.findByIdAndUpdate(req.params.id, req.body.blog, function(err, blog){
        if(err){
-           res.redirect("/blogs");
+           console.log(err);
        } else {
-         res.redirect("/blogs/" + req.params.id);
+         var showUrl = "/blogs/" + blog._id;
+         res.redirect(showUrl);
        }
    });
 });
 
 app.delete("/blogs/:id", function(req, res){
-   Blog.findByIdRemove(req.params.id, function(err){
+   Blog.findById(req.params.id, function(err, blog){
        if(err){
-           res.redirect("/blogs");
+           console.log(err);
        } else {
+           blog.remove();
            res.redirect("/blogs");
-
        }
    });
 });
