@@ -82,17 +82,17 @@ app.put("/blogs/:id", function(req, res){
    });
 });
 
-// app.delete("/blogs/:id", function(req, res){
-//    Blog.findById(req.params.id, function(err, blog){
-//        if(err){
-//            console.log(err);
-//        } else {
-//            blog.remove();
-//            res.redirect("/blogs");
-//        }
-//    });
-// });
+app.delete("/blogs/:id", function(req, res){
+   Blog.findByIdRemove(req.params.id, function(err){
+       if(err){
+           res.redirect("/blogs");
+       } else {
+           res.redirect("/blogs");
 
-app.listen(3000, function(){
+       }
+   });
+});
+
+app.listen(4000, function(){
   console.log("server is runnning");
 })
