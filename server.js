@@ -1,11 +1,15 @@
-let express = require("express"),
-    app     = express(),
-    mongoose = require("mongoose"),
-    bodyParser = require("body-parser"),
-    expressSanitizer = require("express-sanitizer"),
-    methodOverride = require('method-override');
 
-mongoose.connect("mongodb://localhost/blog_app");
+let express          = require("express"),
+    app              = express(),
+    mongoose         = require("mongoose"),
+    bodyParser       = require("body-parser"),
+    expressSanitizer = require("express-sanitizer"),
+    methodOverride   = require('method-override');
+    Port             = process.env.Port || 3000,
+
+    require('./db/db');
+
+mongoose.connect("mongodb://localhost/blog_app", { useNewUrlParser: true });
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(expressSanitizer());
 app.set("view engine", "ejs");
@@ -95,6 +99,7 @@ app.delete("/blogs/:id", function(req, res){
    });
 });
 
-app.listen(4000, function(){
-  console.log("server is runnning");
-})
+// The whole thing listens through here:
+app.listen(PORT, () => {
+  console.log('Server listening on port ' + PORT);
+});
