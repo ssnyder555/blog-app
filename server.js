@@ -5,7 +5,7 @@ let express          = require("express"),
     bodyParser       = require("body-parser"),
     expressSanitizer = require("express-sanitizer"),
     methodOverride   = require('method-override');
-    Port             = process.env.Port || 3000,
+    PORT             = process.env.Port || 3000,
 
     require('./db/db');
 
